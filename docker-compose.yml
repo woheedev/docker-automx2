@@ -1,0 +1,26 @@
+services:
+  automx2:
+    image: ghcr.io/woheedev/docker-automx2:latest
+    container_name: automx2
+    #network_mode: bridge
+    ports:
+      - "4243:4243"
+    #volumes:
+    #  - ./data:/data - custom sql file
+    environment:
+      - PROXY_COUNT
+      - PROVIDER_NAME
+      - PROVIDER_SHORTNAME
+      - DOMAINS
+      # IMAP
+      - IMAP_HOST
+      - IMAP_PORT
+      - IMAP_SOCKET
+      # POP
+      - POP_HOST
+      - POP_PORT
+      - POP_SOCKET
+      # SMTP
+      - SMTP_HOST
+      - SMTP_PORT
+      - SMTP_SOCKET

@@ -10,9 +10,9 @@ from urllib.request import Request, urlopen
 
 import jinja2
 
-database_path = '/automx2_db.sqlite'
-template_path = '/etc/automx2.template.conf'
-configuration_path = '/etc/automx2.conf'
+database_path = '/app/automx2_db.sqlite'
+template_path = '/app/config/automx2.template.conf'
+configuration_path = '/app/config/automx2.conf'
 custom_sql_path = '/data/custom.sql'
 
 
@@ -57,14 +57,17 @@ def create_database():
     if os.path.isfile(database_path):
         os.remove(database_path)
 
+    # Set the config file location for automx2
+    os.environ['AUTOMX2_CONF'] = configuration_path
+
     # Runs automx2 with gunicorn as the application server as a subprocess to populate the database
     # https://flask.palletsprojects.com/en/2.0.x/deploying/wsgi-standalone/#gunicorn
     # https://docs.python.org/3.10/library/subprocess.html#subprocess.Popen
-    process = subprocess.Popen(['/usr/local/bin/gunicorn', '-b 127.0.0.1:80', 'automx2.server:app'])
+    process = subprocess.Popen(['/usr/local/bin/gunicorn', '-b 127.0.0.1:4243', 'automx2.server:app'])
 
     # Send a request to the /initdb/ endpoint to generate the database schema
     # https://rseichter.github.io/automx2/#_testing_standalone_automx2
-    initdb_request = Request('http://127.0.0.1/initdb/')
+    initdb_request = Request('http://127.0.0.1:4243/initdb/')
     time.sleep(1)
     with urlopen(initdb_request) as response:
         if response.status != 200:
@@ -186,8 +189,11 @@ def replace_with_app():
 
     populate_database() must be called beforehand.
     """
+    # Set the config file location for automx2
+    os.environ['AUTOMX2_CONF'] = configuration_path
+    
     # Replace this process with the flask application server
-    os.execv('/usr/local/bin/gunicorn', ['gunicorn', '-b 0.0.0.0:80', 'automx2.server:app'])
+    os.execv('/usr/local/bin/gunicorn', ['gunicorn', '-b 0.0.0.0:4243', 'automx2.server:app'])
 
 
 check_required_env()
