@@ -4,3 +4,6 @@
 # Pipfiles utilized for local development
 Pipfile
 Pipfile.lock
+
+# Environment variables
+.env
